@@ -23,5 +23,5 @@ Tests are written in Python using Pytest and the Requests library.
 ### 1. Clone the Repository
 
 ```bash
-git clone [your-repo-url]
+git clone https://github.com/Ifeoluwa-aa/hng-stage3-qa.git
 cd hng-stage3-qa
