@@ -23,10 +23,10 @@ This project contains automated API tests for the Zedu platform (https://zedu.ch
 ```bash
 git clone https://github.com/Ifeoluwa-aa/hng-stage3-qa.git
 cd hng-stage3-qa
-2. Create a Virtual Environment
-Windows:
+### 2. Create a Virtual Environment
 
-bash
+**Windows:**
+```bash
 python -m venv venv
 venv\Scripts\activate
 Mac/Linux:
@@ -34,10 +34,10 @@ Mac/Linux:
 bash
 python -m venv venv
 source venv/bin/activate
-3. Install Dependencies
+### 3. Install Dependencies
 bash
 pip install -r requirements.txt
-4. Set Up the .env File
+### 4. Set Up the .env File
 Create a .env file in the project root folder (same level as README.md). The .env file must contain the following variables:
 
 text
