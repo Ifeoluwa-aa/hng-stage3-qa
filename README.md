@@ -1,5 +1,3 @@
-Complete README.md (Copy and Paste This Entire Thing)
-markdown
 # HNG Stage 3 - API Automation for Zedu Platform
 
 ## Project Overview
