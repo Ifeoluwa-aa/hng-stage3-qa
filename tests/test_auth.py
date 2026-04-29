@@ -30,7 +30,7 @@ class TestLogin:
         assert len(data["data"]["access_token"]) > 0
 
     def test_login_bad_password(self):
-        """Negative: Wrong password returns 400"""
+        """Negative: Wrong password returns 400 with error message"""
         login_url = f"{BASE_URL}/auth/login"
         
         response = requests.post(login_url, json={
@@ -39,9 +39,11 @@ class TestLogin:
         })
         
         assert response.status_code == 400
+        data = response.json()
+        assert "message" in data or "error" in data, "Error response must contain a message field"
 
     def test_login_unknown_email(self):
-        """Negative: Nonexistent email returns 400"""
+        """Negative: Nonexistent email returns 400 with error message"""
         login_url = f"{BASE_URL}/auth/login"
         
         response = requests.post(login_url, json={
@@ -50,9 +52,11 @@ class TestLogin:
         })
         
         assert response.status_code == 400
+        data = response.json()
+        assert "message" in data or "error" in data, "Error response must contain a message field"
 
     def test_login_missing_email(self):
-        """Negative: Missing email field returns 400"""
+        """Negative: Missing email field returns 400 with error message"""
         login_url = f"{BASE_URL}/auth/login"
         
         response = requests.post(login_url, json={
@@ -60,9 +64,11 @@ class TestLogin:
         })
         
         assert response.status_code == 400
+        data = response.json()
+        assert "message" in data or "error" in data, "Error response must contain a message field"
 
     def test_login_missing_password(self):
-        """Negative: Missing password field returns 400"""
+        """Negative: Missing password field returns 400 with error message"""
         login_url = f"{BASE_URL}/auth/login"
         
         response = requests.post(login_url, json={
@@ -70,6 +76,8 @@ class TestLogin:
         })
         
         assert response.status_code == 400
+        data = response.json()
+        assert "message" in data or "error" in data, "Error response must contain a message field"
 
     def test_login_response_schema(self):
         """Positive: Response contains token, expiry, and user fields"""
@@ -111,7 +119,7 @@ class TestRegister:
         assert response.status_code == 201
 
     def test_register_missing_email(self, test_user):
-        """Negative: Missing email returns 422 validation error"""
+        """Negative: Missing email returns 422 validation error with message"""
         register_url = f"{BASE_URL}/auth/register"
         
         response = requests.post(register_url, json={
@@ -122,9 +130,11 @@ class TestRegister:
         })
         
         assert response.status_code == 422
+        data = response.json()
+        assert "message" in data or "error" in data or "detail" in data, "Validation error response must contain a message"
 
     def test_register_missing_password(self, test_user):
-        """Negative: Missing password returns 422 validation error"""
+        """Negative: Missing password returns 422 validation error with message"""
         register_url = f"{BASE_URL}/auth/register"
         
         response = requests.post(register_url, json={
@@ -135,6 +145,8 @@ class TestRegister:
         })
         
         assert response.status_code == 422
+        data = response.json()
+        assert "message" in data or "error" in data or "detail" in data, "Validation error response must contain a message"
 
     def test_register_missing_username_optional(self, test_user):
         """Positive: Username is optional — registration succeeds without it"""
@@ -164,7 +176,7 @@ class TestRegister:
         assert response.status_code == 201
 
     def test_register_invalid_email_format(self, test_user):
-        """Negative: Invalid email format returns 400"""
+        """Negative: Invalid email format returns 400 with error message"""
         register_url = f"{BASE_URL}/auth/register"
         
         response = requests.post(register_url, json={
@@ -176,9 +188,11 @@ class TestRegister:
         })
         
         assert response.status_code == 400
+        data = response.json()
+        assert "message" in data or "error" in data, "Error response must contain a message field"
 
     def test_register_duplicate_email(self, test_user):
-        """Negative: Duplicate email returns 400"""
+        """Negative: Duplicate email returns 400 with error message"""
         register_url = f"{BASE_URL}/auth/register"
         
         requests.post(register_url, json={
@@ -198,6 +212,8 @@ class TestRegister:
         })
         
         assert response.status_code == 400
+        data = response.json()
+        assert "message" in data or "error" in data, "Error response must contain a message field"
 
     def test_register_email_accepts_long_email(self, test_user):
         """Boundary: API accepts long email addresses (100+ characters)"""
@@ -230,7 +246,7 @@ class TestRegister:
         assert response.status_code == 201
 
     def test_register_rejects_sql_metacharacters(self, test_user):
-        """Edge: SQL injection in email returns 400"""
+        """Edge: SQL injection in email returns 400 with error message"""
         register_url = f"{BASE_URL}/auth/register"
         
         response = requests.post(register_url, json={
@@ -242,6 +258,8 @@ class TestRegister:
         })
         
         assert response.status_code == 400
+        data = response.json()
+        assert "message" in data or "error" in data, "Error response must contain a message field"
 
     def test_register_accepts_script_as_plain_text(self, test_user):
         """Edge: XSS script in name is stored as plain text, registration succeeds"""
