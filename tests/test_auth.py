@@ -29,26 +29,26 @@ class TestLogin:
         assert "access_token" in data["data"]
         assert len(data["data"]["access_token"]) > 0
 
-    def test_login_bad_password(self):
+    def test_login_bad_password(self, wrong_password):
         """Negative: Wrong password returns 400 with error message"""
         login_url = f"{BASE_URL}/auth/login"
         
         response = requests.post(login_url, json={
             "email": TEST_EMAIL,
-            "password": "completely_wrong_password_12345"
+            "password": wrong_password
         })
         
         assert response.status_code == 400
         data = response.json()
         assert "message" in data or "error" in data, "Error response must contain a message field"
 
-    def test_login_unknown_email(self):
+    def test_login_unknown_email(self, nonexistent_email):
         """Negative: Nonexistent email returns 400 with error message"""
         login_url = f"{BASE_URL}/auth/login"
         
         response = requests.post(login_url, json={
-            "email": "nonexistent_user_123456789@example.com",
-            "password": "Test@1234"
+            "email": nonexistent_email,
+            "password": TEST_PASSWORD
         })
         
         assert response.status_code == 400
@@ -175,13 +175,13 @@ class TestRegister:
         
         assert response.status_code == 201
 
-    def test_register_invalid_email_format(self, test_user):
+    def test_register_invalid_email_format(self, test_user, invalid_email):
         """Negative: Invalid email format returns 400 with error message"""
         register_url = f"{BASE_URL}/auth/register"
         
         response = requests.post(register_url, json={
             "username": test_user["username"],
-            "email": "not-an-email",
+            "email": invalid_email,
             "password": test_user["password"],
             "first_name": test_user["first_name"],
             "last_name": test_user["last_name"]
@@ -231,27 +231,27 @@ class TestRegister:
         
         assert response.status_code == 200
 
-    def test_register_password_accepts_7_chars(self, test_user):
+    def test_register_password_accepts_7_chars(self, test_user, short_password):
         """Boundary: API accepts 7-character password"""
         register_url = f"{BASE_URL}/auth/register"
         
         response = requests.post(register_url, json={
             "username": f"{test_user['username']}_seven",
             "email": f"seven_{test_user['email']}",
-            "password": "Pass123",
+            "password": short_password,
             "first_name": test_user["first_name"],
             "last_name": test_user["last_name"]
         })
         
         assert response.status_code == 201
 
-    def test_register_rejects_sql_metacharacters(self, test_user):
+    def test_register_rejects_sql_metacharacters(self, test_user, sql_injection_payload):
         """Edge: SQL injection in email returns 400 with error message"""
         register_url = f"{BASE_URL}/auth/register"
         
         response = requests.post(register_url, json={
             "username": test_user["username"],
-            "email": "' OR '1'='1; DROP TABLE users; --",
+            "email": sql_injection_payload,
             "password": test_user["password"],
             "first_name": test_user["first_name"],
             "last_name": test_user["last_name"]
@@ -261,7 +261,7 @@ class TestRegister:
         data = response.json()
         assert "message" in data or "error" in data, "Error response must contain a message field"
 
-    def test_register_accepts_script_as_plain_text(self, test_user):
+    def test_register_accepts_script_as_plain_text(self, test_user, xss_payload):
         """Edge: XSS script in name is stored as plain text, registration succeeds"""
         register_url = f"{BASE_URL}/auth/register"
         
@@ -269,7 +269,7 @@ class TestRegister:
             "username": test_user["username"],
             "email": test_user["email"],
             "password": test_user["password"],
-            "first_name": "<script>alert('XSS')</script>",
+            "first_name": xss_payload,
             "last_name": test_user["last_name"]
         })
         
