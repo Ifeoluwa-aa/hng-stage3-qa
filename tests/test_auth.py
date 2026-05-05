@@ -22,7 +22,7 @@ class TestLogin:
             "password": TEST_PASSWORD
         })
         
-        assert response.status_code == 200
+        assert response.status_code == 999
         
         data = response.json()
         assert "data" in data
