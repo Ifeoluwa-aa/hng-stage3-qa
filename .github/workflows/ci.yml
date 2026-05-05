@@ -60,8 +60,8 @@ jobs:
     if: always()  # Run even if tests fail
     
     steps:
-      - name: Send email on success
-        if: success()
+      - name: Send email on test success
+        if: needs.test.result == 'success'
         uses: dawidd6/action-send-mail@v3
         with:
           server_address: smtp.gmail.com
@@ -81,8 +81,8 @@ jobs:
             
             Total tests passed: All 27 tests are green! ✅
       
-      - name: Send email on failure
-        if: failure()
+      - name: Send email on test failure
+        if: needs.test.result == 'failure'
         uses: dawidd6/action-send-mail@v3
         with:
           server_address: smtp.gmail.com
@@ -108,7 +108,7 @@ jobs:
     name: Deploy to Production
     runs-on: ubuntu-latest
     needs: notify  # Wait for notify job first
-    if: success()  # ONLY run if ALL tests passed
+    if: needs.test.result == 'success'  # ONLY run if ALL tests passed
     
     steps:
       - name: Checkout code
