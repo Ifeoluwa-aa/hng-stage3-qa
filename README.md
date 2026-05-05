@@ -1,5 +1,7 @@
 # HNG Stage 3 - API Automation for Zedu Platform
 
+[![HNG Stage 3 - API Test Suite](https://github.com/Ifeoluwa-aa/hng-stage3-qa/actions/workflows/ci.yml/badge.svg)](https://github.com/Ifeoluwa-aa/hng-stage3-qa/actions/workflows/ci.yml)
+
 ## Project Overview
 
 This project contains automated API tests for the Zedu platform (https://zedu.chat/). The test suite covers authentication (login/register) and user profile endpoints. Tests are written in Python using Pytest and the Requests library.
