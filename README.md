@@ -56,127 +56,141 @@ The green badge at the top of this README shows the current pipeline status:
 ```bash
 git clone https://github.com/Ifeoluwa-aa/hng-stage3-qa.git
 cd hng-stage3-qa
+```
 
 ### 2. Create a Virtual Environment
-Windows:
 
+**Windows:**
 ```bash
 python -m venv venv
 venv\Scripts\activate
-Mac/Linux:
+```
 
+**Mac/Linux:**
 ```bash
 python -m venv venv
 source venv/bin/activate
+```
 
 ### 3. Install Dependencies
 
 ```bash
 pip install -r requirements.txt
+```
 
-### 4. Set Up the .env File
-Create a .env file in the project root folder (same level as README.md). The .env file must contain the following variables:
+### 4. Set Up the `.env` File
 
-text
+Create a `.env` file in the project root folder (same level as `README.md`). The `.env` file must contain the following variables:
+
+```text
 BASE_URL=https://api.staging.zedu.chat/api/v1
 TEST_EMAIL=your_actual_email@example.com
 TEST_PASSWORD=your_actual_password
 REGISTER_PASSWORD=Test@1234
-Important: Replace your_actual_email@example.com and your_actual_password with your real Zedu account credentials. The .env file is NOT committed to GitHub for security reasons.
+```
 
-How to Run the Full Test Suite
+> **Important:** Replace `your_actual_email@example.com` and `your_actual_password` with your real Zedu account credentials. The `.env` file is **NOT** committed to GitHub for security reasons.
+
+## How to Run the Full Test Suite
+
 Run all tests:
-
 ```bash
 python -m pytest tests/ -v
-Run a specific test file:
+```
 
+Run a specific test file:
 ```bash
 python -m pytest tests/test_auth.py -v
 python -m pytest tests/test_users.py -v
-Description of Each Test File
-tests/test_auth.py (17 tests)
+```
+
+## Description of Each Test File
+
+### `tests/test_auth.py` (17 tests)
+
 This file tests the authentication endpoints including:
 
-Login tests: Valid credentials, wrong password, unknown email, missing email field, missing password field, response schema validation
+- **Login tests:** Valid credentials, wrong password, unknown email, missing email field, missing password field, response schema validation
+- **Registration tests:** Valid user registration, missing email, missing password, missing username (optional), missing phone number (optional), invalid email format, duplicate email, password boundary (7 and 8 characters), SQL injection rejection, XSS script rejection
 
-Registration tests: Valid user registration, missing email, missing password, missing username (optional), missing phone number (optional), invalid email format, duplicate email, password boundary (7 and 8 characters), SQL injection rejection, XSS script rejection
+### `tests/test_users.py` (10 tests)
 
-tests/test_users.py (10 tests)
 This file tests the user profile endpoints including:
 
-Get current user: Valid token returns 200, missing token returns 401, invalid token returns 401, response contains avatar_url field, response contains created_at field
+- **Get current user:** Valid token returns 200, missing token returns 401, invalid token returns 401, response contains `avatar_url` field, response contains `created_at` field
+- **Update user:** Missing token returns 401, invalid token returns 401
+- **Delete user:** Missing token returns 401, invalid token returns 401
 
-Update user: Missing token returns 401, invalid token returns 401
+## Key Features
 
-Delete user: Missing token returns 401, invalid token returns 401
+- **No hardcoded tokens** — All tokens are generated at runtime using login credentials
+- **Dynamic test data** — Uses Faker library to generate unique emails and usernames for each test run
+- **Independent tests** — Each test can run solo without dependencies on other tests
+- **Idempotent tests** — Tests can be re-run multiple times without conflicts
+- **Handles API inconsistencies** — Helper functions handle both response structures from the `/users/me` endpoint
 
-Key Features
-No hardcoded tokens - All tokens are generated at runtime using login credentials
+## Environment Variables
 
-Dynamic test data - Uses Faker library to generate unique emails and usernames for each test run
+The following environment variables are required (stored in `.env` locally and GitHub Secrets for CI):
 
-Independent tests - Each test can run solo without dependencies on other tests
+| Variable | Purpose |
+|----------|---------|
+| `BASE_URL` | Zedu API base URL |
+| `TEST_EMAIL` | Email for test account |
+| `TEST_PASSWORD` | Password for test account |
+| `REGISTER_PASSWORD` | Default password for new test users |
 
-Idempotent tests - Tests can be re-run multiple times without conflicts
+## API vs Swagger Discrepancies Found
 
-Handles API inconsistencies - Helper functions handle both response structures from the /users/me endpoint
-
-Environment Variables
-The following environment variables are required (stored in .env locally and GitHub Secrets for CI):
-
-Variable	Purpose
-BASE_URL	Zedu API base URL
-TEST_EMAIL	Email for test account
-TEST_PASSWORD	Password for test account
-REGISTER_PASSWORD	Default password for new test users
-API vs Swagger Discrepancies Found
 During testing, the following differences were identified between the Swagger documentation and the actual API behavior:
 
-Endpoint	Swagger Documentation	Actual API Behavior
-POST /auth/login (wrong password)	401 Unauthorized	400 Bad Request
-POST /auth/login (missing email)	422 Validation Error	400 Bad Request
-POST /auth/register (missing username)	Required field	Optional (succeeds without it)
-POST /auth/register (duplicate email)	409 Conflict	400 Bad Request
-GET /users/me	Returns user object directly	Returns data wrapped in "data" or "user" key (inconsistent)
-GET /users/me	Returns id, email, first_name, last_name	Returns avatar_url, created_at, current_org
+| Endpoint | Swagger Documentation | Actual API Behavior |
+|----------|-----------------------|---------------------|
+| POST /auth/login (wrong password) | 401 Unauthorized | 400 Bad Request |
+| POST /auth/login (missing email) | 422 Validation Error | 400 Bad Request |
+| POST /auth/register (missing username) | Required field | Optional (succeeds without it) |
+| POST /auth/register (duplicate email) | 409 Conflict | 400 Bad Request |
+| GET /users/me | Returns user object directly | Returns data wrapped in `"data"` or `"user"` key (inconsistent) |
+| GET /users/me | Returns `id`, `email`, `first_name`, `last_name` | Returns `avatar_url`, `created_at`, `current_org` |
+
 These discrepancies have been documented, and the tests are written to match the actual API behavior to ensure they pass consistently.
 
-Project Structure
-text
+## Project Structure
+
+```
 hng-stage3-qa/
 │
 ├── .github/
 │   └── workflows/
-│       └── ci.yml          
+│       └── ci.yml
 │
 ├── tests/
-│   ├── test_auth.py        
-│   └── test_users.py       
+│   ├── test_auth.py
+│   └── test_users.py
 │
 ├── utils/
-│   └── auth.py             
+│   └── auth.py
 │
-├── conftest.py             
-├── requirements.txt       
-├── .env.example           
-├── .gitignore              
-└── README.md              
-Continuous Integration
-This project uses GitHub Actions for CI. The workflow configuration is in .github/workflows/ci.yml.
+├── conftest.py
+├── requirements.txt
+├── .env.example
+├── .gitignore
+└── README.md
+```
 
-Trigger: On push and pull request to main branch
+## Continuous Integration
 
-Jobs:
+This project uses GitHub Actions for CI. The workflow configuration is in `.github/workflows/ci.yml`.
 
-Test - Runs the full pytest suite with JUnit XML output
+**Trigger:** On push and pull request to `main` branch
 
-Notify - Sends email notification with pass/fail status
+**Jobs:**
+- **Test** — Runs the full pytest suite with JUnit XML output
+- **Notify** — Sends email notification with pass/fail status
+- **Deploy** — Runs deployment (only if tests pass)
 
-Deploy - Runs deployment (only if tests pass)
+View pipeline runs: Go to the **Actions** tab in the GitHub repository.
 
-View pipeline runs: Go to the Actions tab in the GitHub repository.
+## Author
 
-Author
-Ifeoluwa Orokale - HNG Internship Cohort 14 - Quality Assurance Track
-
+**Ifeoluwa Orokale** — HNG Internship Cohort 14 — Quality Assurance Track
